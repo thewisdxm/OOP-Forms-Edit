@@ -136,8 +136,9 @@ class UserAuth extends Dbh{
 
     public function updateUser($email, $password){
         $conn = $this->db->connect();
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         if ($this->checkEmailExist($email)){
-        $sql = "UPDATE Students SET password = '$password' WHERE email = '$email'";
+        $sql = "UPDATE Students SET password = '$hashed_password' WHERE email = '$email'";
         if($conn->query($sql) === TRUE){
             header("Location: forms/login.php");
         } 
