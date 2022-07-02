@@ -10,8 +10,38 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
 </head>
     <body>
-        <?php if(isset($_GET['message']) )
-        echo "<script> alert('Invalid Email Or Password')</script>";
+        <?php 
+           
+            if(isset($_GET['message']) ) {
+                echo "<script> alert('Invalid Email Or Password')</script>";
+            }
+            
+            if (isset($_GET['login'])){
+                $logincheck = $_GET['login'];
+
+                if ($logincheck == "dashboarderror") {
+                    echo "<center> You are not authorized to view this page, please log in </center>";
+                }
+                elseif ($logincheck == "registrationsuccess") {
+                    echo "<center> Registration Successful, please log in </center>";
+                }
+                elseif ($logincheck == "registrationerror") {
+                    echo "<center> You already have an account with us, please log in </center>";
+                }
+                elseif ($logincheck == "passworderror") {
+                    echo "<center> Incorrect email or password, please check again </center>";
+                }
+                elseif ($logincheck == "reseterror") {
+                    echo "<center> You are using the same password! Please Login </center>";
+                }
+                elseif ($logincheck == "resetsuccess") {
+                    echo "<center> Password reset successful! Please Login </center>";
+                }
+                elseif ($logincheck == "logoutsuccess") {
+                    echo "<center> Logout successful! </center>";
+                }
+            }
+
         ?>
         <div class="all">
             <nav class="navbar navbar-expand-lg navbar-light ">

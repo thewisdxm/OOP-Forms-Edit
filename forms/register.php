@@ -9,6 +9,18 @@
     <link rel="stylesheet" href="../assets/style.css">
 </head>
     <body>
+            <?php 
+                if (isset($_GET['registration'])){
+                    $regcheck = $_GET['registration'];
+    
+                    if ($regcheck == "passworderror") {
+                        echo "<center> Passwords do not match! </center>";
+                    }
+                    elseif ($regcheck == "reseterror") {
+                        echo "<center> You do not have an account with us, please register first! </center>";
+                    }
+                }
+            ?>
         <div class="all">
             <!-- Image and text -->
         <nav class="navbar navbar-expand-lg navbar-light ">
@@ -23,7 +35,6 @@
                 </li>
     </div>
     </nav>
-
         <form class="form-control w-50" method="POST" action="../action.php">
             <h1 class="form-group">Register</h1>
             <hr>
@@ -79,7 +90,6 @@
             </div>
             
       </form>
-   
     
 `   </div>
 </div>

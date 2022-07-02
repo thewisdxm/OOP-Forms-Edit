@@ -15,7 +15,7 @@ class UserAuth extends Dbh{
         $conn = $this->db->connect();
         if ($this->getUserByUsername($email)) 
         { 
-            echo "<h1> This User already exists </h1>";
+            header("Location: forms/login.php?login=registrationerror");
         }  
          else 
             {
@@ -23,20 +23,19 @@ class UserAuth extends Dbh{
                     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                     $sql = "INSERT INTO Students (`full_names`, `email`, `password`, `country`, `gender`) VALUES ('$fullname','$email', '$hashed_password', '$country', '$gender')";
                     if($conn->query($sql)){
-                        header("Location: forms/login.php");
+                        header("Location: forms/login.php?registrationsuccess");
                     } else {
                         echo "Opps". $conn->error;
                     }
                 } else {
-                    echo "<h1> Passwords do not match </h1>";
+                    header("Location: forms/register.php?registration=passworderror");
                 } 
             }
     }
 
     public function login($email, $password){
         $conn = $this->db->connect();
-     
-       if ($this->checkPassword($password)) {
+        if ($this->checkPassword($email, $password)) {
     
             $sql = "SELECT * FROM Students WHERE email='$email'";
             $result = $conn->query($sql);
@@ -50,11 +49,12 @@ class UserAuth extends Dbh{
             $_SESSION['email'] = $user_session;
             header("Location: dashboard.php");
         } 
-        } else {
-            header("Location: forms/login.php");
-            }
+        }  else {
+            // login failed;
+            header("Location: forms/login.php?login=passworderror");
+        }
     }
-
+        
     public function checkEmailExist($email){
         $conn = $this->db->connect();
         $sql = "SELECT * FROM Students WHERE email = '$email'";
@@ -66,36 +66,26 @@ class UserAuth extends Dbh{
         }
     }
 
-    public function checkPassword($password){
+    public function checkPassword($email, $password){
         $conn = $this->db->connect();
-        $databasepass = $result[0]['password'];
-        $verifypass = password_verify($password, $databasepass);
-        if ($databasepassword == $verifypass){
+        $stmt = $conn->prepare("SELECT * FROM Students WHERE email = '$email'");
+    //    $stmt->bind_param("ss", "$email", "$password");
+        $stmt->execute();
+        $user = $stmt->get_result()->fetch_assoc();
+
+        if ($user && password_verify($password, $user['password']))
+        {
             return TRUE;
         } else {
             return FALSE;
         }
     }
 
-    // public function samePassword($password){
-    //     $conn = $this->db->connect();
-    //     $databasepass = $result[0]['password'];
-    //     $verifypass = password_verify($password, $databasepass);
-    //     if ($databasepassword == $verifypass){
-    //         return TRUE;
-    //     } else {
-    //         return FALSE;
-    //     }
-    // }
-
     public function getAllUsers(){
         $conn = $this->db->connect();
         if (!(isset($_SESSION['email']) && $_SESSION['email']!=''))
         {
-            echo "<h1> You are not authorised to view this, please login </h1>" . 
-                 "<form action='forms/login.php' method='post'>" .
-                 "<button class='btn btn-danger' type='submit', name='login'> Login Page </button> 
-                  </form>";
+            header("Location: forms/login.php?login=dashboarderror");
         } else {
             $sql = "SELECT * FROM Students";
         $result = $conn->query($sql);
@@ -149,24 +139,23 @@ class UserAuth extends Dbh{
 
     public function updateUser($email, $password){
         $conn = $this->db->connect();
-        if ($this->checkPassword($password)) 
+        if ($this->checkPassword($email, $password)) 
         {
-                echo "<h1> You are using the same password </h1>";
+            header("Location: forms/login.php?login=reseterror");    
         } else 
             {
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             if ($this->checkEmailExist($email)){
             $sql = "UPDATE Students SET password = '$hashed_password' WHERE email = '$email'";
             if($conn->query($sql) === TRUE){
-                header("Location: forms/login.php");
+                header("Location: forms/login.php?login=resetsuccess");
             } 
             } else {
-                header("Location: forms/resetpassword.php");
+                header("Location: forms/register.php?registration=reseterror");
             }
             }
-        
     }
-
+    
     public function getUserByUsername($email){
         $conn = $this->db->connect();
         $sql = "SELECT * FROM Students WHERE email = '$email'";
@@ -180,14 +169,11 @@ class UserAuth extends Dbh{
 
     public function logout($email){
         if (!(isset($_SESSION['email']) && $_SESSION['email']!='')) {
-            echo "There is no active login, please login" . "<br>" ."<br>" .
-                 "<form action='forms/login.php' method='post'>" .
-                    "<button class='btn btn-danger' type='submit', name='login'> Login Page </button> 
-                    </form>";
+            header("Location: forms/login.php?login=dashboarderror");
         } else {
             session_start();
             session_destroy();
-            header("Location: forms/login.php");
+            header("Location: forms/login.php?login=logoutsuccess");
         }
     }
 

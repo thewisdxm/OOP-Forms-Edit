@@ -35,7 +35,13 @@
      <h1 class="">
        Welcome to Zuri Authentication 
        <?php session_start();
-        if(isset($_SESSION['email'])){ echo $_SESSION['email'];} ?>
+        if(isset($_SESSION['email']))
+        { 
+          echo $_SESSION['email'];
+        } else {
+          header("Location: forms/login.php?login=dashboarderror");
+        }
+        ?>
     </h1>
     <br>
       <h2 style="align-content: center">
