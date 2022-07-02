@@ -16,19 +16,21 @@ class UserAuth extends Dbh{
         if ($this->getUserByUsername($email)) 
         { 
             echo "<h1> This User already exists </h1>";
-        }   else {
-            if($this->validatePassword($password, $confirmPassword)){
-                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                $sql = "INSERT INTO Students (`full_names`, `email`, `password`, `country`, `gender`) VALUES ('$fullname','$email', '$hashed_password', '$country', '$gender')";
-                if($conn->query($sql)){
-                    header("Location: forms/login.php");
+        }  
+         else 
+            {
+                if($this->validatePassword($password, $confirmPassword)){
+                    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                    $sql = "INSERT INTO Students (`full_names`, `email`, `password`, `country`, `gender`) VALUES ('$fullname','$email', '$hashed_password', '$country', '$gender')";
+                    if($conn->query($sql)){
+                        header("Location: forms/login.php");
+                    } else {
+                        echo "Opps". $conn->error;
+                    }
                 } else {
-                    echo "Opps". $conn->error;
-                }
-            } else {
-                echo "<h1> Passwords do not match </h1>";
-            } 
-        }
+                    echo "<h1> Passwords do not match </h1>";
+                } 
+            }
     }
 
     public function login($email, $password){
@@ -74,6 +76,17 @@ class UserAuth extends Dbh{
             return FALSE;
         }
     }
+
+    // public function samePassword($password){
+    //     $conn = $this->db->connect();
+    //     $databasepass = $result[0]['password'];
+    //     $verifypass = password_verify($password, $databasepass);
+    //     if ($databasepassword == $verifypass){
+    //         return TRUE;
+    //     } else {
+    //         return FALSE;
+    //     }
+    // }
 
     public function getAllUsers(){
         $conn = $this->db->connect();
@@ -136,15 +149,22 @@ class UserAuth extends Dbh{
 
     public function updateUser($email, $password){
         $conn = $this->db->connect();
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        if ($this->checkEmailExist($email)){
-        $sql = "UPDATE Students SET password = '$hashed_password' WHERE email = '$email'";
-        if($conn->query($sql) === TRUE){
-            header("Location: forms/login.php");
-        } 
-        } else {
-            header("Location: forms/resetpassword.php");
-        }
+        if ($this->checkPassword($password)) 
+        {
+                echo "<h1> You are using the same password </h1>";
+        } else 
+            {
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            if ($this->checkEmailExist($email)){
+            $sql = "UPDATE Students SET password = '$hashed_password' WHERE email = '$email'";
+            if($conn->query($sql) === TRUE){
+                header("Location: forms/login.php");
+            } 
+            } else {
+                header("Location: forms/resetpassword.php");
+            }
+            }
+        
     }
 
     public function getUserByUsername($email){
